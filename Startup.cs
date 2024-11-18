@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using dvcsharp_core_api.Data;
+using Microsoft.AspNetCore.Mvc;
 
 namespace dvcsharp_core_api
 {
@@ -34,10 +35,11 @@ namespace dvcsharp_core_api
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
+                    builder => builder
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials()
+                        .SetIsOriginAllowed(hostName => true)
                 .Build());
             });
 
@@ -53,7 +55,7 @@ namespace dvcsharp_core_api
                     };
                 });
 
-            services.AddMvc();
+            services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
