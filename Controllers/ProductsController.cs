@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using dvcsharp_core_api.Models;
 using dvcsharp_core_api.Data;
+using static System.FormattableString;
 
 namespace dvcsharp_core_api
 {
@@ -68,11 +69,11 @@ namespace dvcsharp_core_api
             return Ok("Cannot search without a keyword");
          }
 
-         var query = $"SELECT * From Products WHERE name LIKE '%{keyword}%' OR description LIKE '%{keyword}%'";
+         FormattableString query = $"SELECT * From Products WHERE name LIKE '%{keyword}%' OR description LIKE '%{keyword}%'";
          var products = _context.Products
             .FromSql(query)
             .ToList();
-
+         
          return Ok(products);
       }
 
