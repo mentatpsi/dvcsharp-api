@@ -52,8 +52,8 @@ public class UserService(IConfiguration configuration) : IUserService
 
    private static string GetHashedPassword(string password)
    {
-      var md5 = SHA256.Create();
-      var hash = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(password));
+      var sha256 = SHA256.Create();
+      var hash = sha256.ComputeHash(System.Text.Encoding.ASCII.GetBytes(password));
 
       return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
    }
