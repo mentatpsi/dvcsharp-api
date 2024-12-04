@@ -47,7 +47,7 @@ namespace dvcsharp_core_api
          user.email = registrationRequest.email;
          user.role = Models.User.RoleUser;
          user.createdAt = user.updatedAt = DateTime.Now;
-         _userService.updatePassword(ref user, registrationRequest.password);
+         _userService.UpdatePassword(ref user, registrationRequest.password);
 
          _context.Users.Add(user);
          _context.SaveChanges();

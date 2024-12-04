@@ -36,7 +36,7 @@ namespace dvcsharp_core_api
          }
 
          var response = _userService.
-            authorizeCreateAccessToken(_context, authorizationRequest);
+            AuthorizeCreateAccessToken(_context, authorizationRequest);
             
          if(response == null) {
             return Unauthorized();
@@ -72,7 +72,7 @@ namespace dvcsharp_core_api
 
          var response = new Models.AuthorizationResponse();
          response.role = user.role;
-         response.accessToken = _userService.createAccessToken(user);
+         response.accessToken = _userService.CreateAccessToken(user);
 
          return Ok(response);
       }

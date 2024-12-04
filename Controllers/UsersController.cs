@@ -48,7 +48,7 @@ namespace dvcsharp_core_api
          existingUser.name = user.name;
          existingUser.email = user.email;
          existingUser.role = user.role;
-         _userService.updatePassword(ref existingUser, user.password);
+         _userService.UpdatePassword(ref existingUser, user.password);
 
          _context.Users.Update(existingUser);
          _context.SaveChanges();

@@ -55,7 +55,7 @@ namespace dvcsharp_core_api
             Where(b => b.email == resetRequest.email).
             FirstOrDefault();
 
-         _userService.updatePassword(ref existingUser, passwordResetRequest.password);
+         _userService.UpdatePassword(ref existingUser, passwordResetRequest.password);
 
          _context.Users.Update(existingUser);
          _context.SaveChanges();

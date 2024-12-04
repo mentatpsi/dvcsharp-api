@@ -12,12 +12,12 @@ namespace dvcsharp_core_api.Service;
 public class UserService(IConfiguration configuration) : IUserService
 {
    
-   public void updatePassword(ref User user, string password)
+   public void UpdatePassword(ref User user, string password)
    {
-      user.password = getHashedPassword(password);
+      user.password = GetHashedPassword(password);
    }
 
-   public string createAccessToken(User user)
+   public string CreateAccessToken(User user)
    {//TokenSecret;
       string secret = configuration["Authentication:SecretKey"];
       string issuer = configuration["Authentication:Issuer"];
@@ -50,15 +50,15 @@ public class UserService(IConfiguration configuration) : IUserService
          Jwt.JwtSecurityTokenHandler().WriteToken(token));
    }
 
-   private static string getHashedPassword(string password)
+   private static string GetHashedPassword(string password)
    {
-      var md5 = MD5.Create();
+      var md5 = SHA256.Create();
       var hash = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(password));
 
       return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
    }
 
-   public AuthorizationResponse authorizeCreateAccessToken(
+   public AuthorizationResponse AuthorizeCreateAccessToken(
       GenericDataContext _context, 
       AuthorizationRequest authorizationRequest)
    {
@@ -72,13 +72,13 @@ public class UserService(IConfiguration configuration) : IUserService
          return response;
       }
 
-      if(getHashedPassword(authorizationRequest.password) != user.password) {
+      if(GetHashedPassword(authorizationRequest.password) != user.password) {
          return response;
       }
 
       response = new AuthorizationResponse();
       response.role = user.role;
-      response.accessToken = createAccessToken(user);
+      response.accessToken = CreateAccessToken(user);
 
       return response;
    }
