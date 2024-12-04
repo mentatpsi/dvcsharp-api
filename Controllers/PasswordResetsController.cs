@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using dvcsharp_core_api.Models;
 using dvcsharp_core_api.Data;
+using dvcsharp_core_api.Service;
 
 namespace dvcsharp_core_api
 {
@@ -13,10 +14,13 @@ namespace dvcsharp_core_api
    public class PasswordResetsController : Controller
    {
       private readonly GenericDataContext _context;
+      private readonly IUserService _userService;
 
-      public PasswordResetsController(GenericDataContext context)
+      public PasswordResetsController(GenericDataContext context,
+         IUserService userService)
       {
          _context = context;
+         _userService = userService;
       }
 
       [HttpPut]
@@ -51,7 +55,7 @@ namespace dvcsharp_core_api
             Where(b => b.email == resetRequest.email).
             FirstOrDefault();
 
-         existingUser.updatePassword(passwordResetRequest.password);
+         _userService.updatePassword(ref existingUser, passwordResetRequest.password);
 
          _context.Users.Update(existingUser);
          _context.SaveChanges();

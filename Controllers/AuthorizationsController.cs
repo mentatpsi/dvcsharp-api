@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using dvcsharp_core_api.Models;
 using dvcsharp_core_api.Data;
+using dvcsharp_core_api.Service;
+using Microsoft.Extensions.Configuration;
 
 namespace dvcsharp_core_api
 {
@@ -13,10 +15,16 @@ namespace dvcsharp_core_api
    public class AuthorizationsController : Controller
    {
       private readonly GenericDataContext _context;
+      private readonly IConfiguration _configuration;
+      private readonly IUserService _userService;
 
-      public AuthorizationsController(GenericDataContext context)
+      public AuthorizationsController(IConfiguration configuration,
+         GenericDataContext context,
+         IUserService userService)
       {
+         _configuration = configuration;
          _context = context;
+         _userService = userService;
       }
 
       [HttpPost]
@@ -27,7 +35,7 @@ namespace dvcsharp_core_api
             return BadRequest(ModelState);
          }
 
-         var response = dvcsharp_core_api.Models.User.
+         var response = _userService.
             authorizeCreateAccessToken(_context, authorizationRequest);
             
          if(response == null) {
@@ -64,7 +72,7 @@ namespace dvcsharp_core_api
 
          var response = new Models.AuthorizationResponse();
          response.role = user.role;
-         response.accessToken = user.createAccessToken();
+         response.accessToken = _userService.createAccessToken(user);
 
          return Ok(response);
       }
