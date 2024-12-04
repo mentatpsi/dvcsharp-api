@@ -18,12 +18,12 @@ public class UserService(IConfiguration configuration) : IUserService
    }
 
    public string CreateAccessToken(User user)
-   {//TokenSecret;
+   {
+      //Push Sensitive information into configuration.
+      //Configurations can be encrypted.
       string secret = configuration["Authentication:SecretKey"];
       string issuer = configuration["Authentication:Issuer"];
       string audience = configuration["Authentication:Audience"];
-      //string issuer = "http://localhost.local/";
-      //string audience = "http://localhost.local/";
 
       var claims = new[]
       {

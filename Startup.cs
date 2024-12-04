@@ -63,7 +63,7 @@ namespace dvcsharp_core_api
                         ValidateAudience = false,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.
-                            GetBytes(Models.User.TokenSecret))
+                            GetBytes(Configuration["Authentication:SecretKey"]))
                     };
                 });
 

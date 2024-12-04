@@ -15,8 +15,7 @@ namespace dvcsharp_core_api.Models
       public const string RoleUser = "User";
       public const string RoleSupport = "Support";
       public const string RoleAdministrator = "Administrator";
-      public const string TokenSecret = "f449a71cff1d56a122c84fa478c16af9075e5b4b8527787b56580773242e40ce";
-
+      
       public int ID { get; set; }
 
       [Required]
