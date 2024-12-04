@@ -84,6 +84,10 @@ namespace dvcsharpcoreapi.Migrations
 
                     b.Property<DateTime>("updatedAt");
 
+                    b.Property<string>("ssoSalt");
+                    
+                    b.Property<DateTime>("ssoExpiration");
+
                     b.HasKey("ID");
 
                     b.ToTable("Users");

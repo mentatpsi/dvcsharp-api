@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using dvcsharp_core_api.Data;
 using dvcsharp_core_api.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace dvcsharp_core_api.Service;
@@ -57,6 +58,64 @@ public class UserService(IConfiguration configuration) : IUserService
 
       return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
    }
+   
+   public byte[] GenerateSalt()
+   {
+      var randomNumber = new byte[256];
+
+      using (var rng = RandomNumberGenerator.Create())
+      {
+         rng.GetBytes(randomNumber);
+         return randomNumber;
+      }
+   }
+
+
+   public void CreateTemporarySSO(ref User user)
+   {
+      var saltBytes = GenerateSalt();
+      var salt64 = Convert.ToBase64String(saltBytes);
+      user.ssoSalt = salt64;
+      user.ssoExpiration = DateTime.Now.AddHours(1);
+   }
+   
+   public AuthorizationResponse CreateTemporarySSO(
+      GenericDataContext _context, 
+      AuthorizationRequest authorizationRequest)
+   {
+      AuthorizationResponse response = null;
+
+      User user = _context.Users.
+         FirstOrDefault(b => b.email == authorizationRequest.email);
+      
+      if(user == null) {
+         return null;
+      }
+
+      if(GetHashedPassword(authorizationRequest.password) != user.password) {
+         return null;
+      }
+
+      
+      
+
+      response = new AuthorizationResponse();
+
+      CreateTemporarySSO(ref user);
+      
+      _context.Users.Update(user);
+      _context.SaveChanges();
+      
+      response.role = user.role;
+      
+      response.ssoSalt = user.ssoSalt;
+      
+      response.ssoExpiration = user.ssoExpiration;
+      
+
+      return response;
+   }
+   
 
    public AuthorizationResponse AuthorizeCreateAccessToken(
       GenericDataContext _context, 
@@ -65,8 +124,7 @@ public class UserService(IConfiguration configuration) : IUserService
       AuthorizationResponse response = null;
 
       User user = _context.Users.
-         Where(b => b.email == authorizationRequest.email).
-         FirstOrDefault();
+         FirstOrDefault(b => b.email == authorizationRequest.email);
       
       if(user == null) {
          return response;
@@ -76,9 +134,21 @@ public class UserService(IConfiguration configuration) : IUserService
          return response;
       }
 
+      
+      
+
       response = new AuthorizationResponse();
+
+      CreateTemporarySSO(ref user);
+      
       response.role = user.role;
+      
+      response.ssoSalt = user.ssoSalt;
+      
+      response.ssoExpiration = user.ssoExpiration;
+      
       response.accessToken = CreateAccessToken(user);
+      
 
       return response;
    }

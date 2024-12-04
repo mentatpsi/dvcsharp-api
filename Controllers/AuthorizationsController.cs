@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using dvcsharp_core_api.Models;
 using dvcsharp_core_api.Data;
 using dvcsharp_core_api.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace dvcsharp_core_api
@@ -28,53 +29,82 @@ namespace dvcsharp_core_api
       }
 
       [HttpPost]
+      [ProducesResponseType<AuthorizationResponse>(StatusCodes.Status200OK)]
       public IActionResult Post([FromBody] AuthorizationRequest authorizationRequest)
       {
-         if(!ModelState.IsValid)
+         if (!ModelState.IsValid)
          {
             return BadRequest(ModelState);
          }
 
-         var response = _userService.
-            AuthorizeCreateAccessToken(_context, authorizationRequest);
-            
+         var response = _userService.AuthorizeCreateAccessToken(_context, authorizationRequest);
+
+         
+         if (response != null)
+         {
+            var ssoResponse =
+               _userService.CreateTemporarySSO(_context, authorizationRequest);
+
+            response.ssoExpiration = ssoResponse.ssoExpiration;
+            response.ssoSalt = ssoResponse.ssoSalt;
+         }
+
          if(response == null) {
             return Unauthorized();
          }
 
-         return Ok(response);
+         return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(response));
+         
       }
 
       [HttpGet("GetTokenSSO")]
       public IActionResult GetTokenSSO()
       {
          var ssoCookieData = HttpContext.Request.Cookies["sso_ctx"];
+         var ssoCookieSalt = HttpContext.Request.Cookies["sso_ctx_s"];
+         
 
          if(String.IsNullOrEmpty(ssoCookieData)) {
             return Unauthorized();
          }
 
+         
+         //Base64 Conversion is not secure
          var ssoCookieDecoded = Convert.FromBase64String(ssoCookieData);
+         
          var ssoCookie = JObject.Parse(System.Text.Encoding.UTF8.GetString(ssoCookieDecoded));
 
          var userId = ssoCookie["auth_user"];
+         
+         
          if(userId == null) {
             return Unauthorized();
          }
-
-         var user = _context.Users.
-            Where(b => b.ID == userId.ToObject<int>()).
-            FirstOrDefault();
+         
+         int userIdInt = userId.ToObject<int>();
+         
+         var user = _context.Users
+            .FirstOrDefault(
+               user => user.ssoSalt == ssoCookieSalt &&
+                       user.ssoExpiration > DateTime.Now &&
+                       user.ID == userIdInt);
 
          if(user == null) {
             return NotFound();
          }
 
+         user.ssoExpiration = DateTime.Now;
+         _context.Users.Update(user);
+         _context.SaveChanges();
+         
          var response = new Models.AuthorizationResponse();
          response.role = user.role;
          response.accessToken = _userService.CreateAccessToken(user);
 
-         return Ok(response);
+         response.ssoSalt = "Void after current use";
+         response.ssoExpiration = user.ssoExpiration;
+         
+         return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(response));
       }
    }
 }

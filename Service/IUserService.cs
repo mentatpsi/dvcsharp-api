@@ -11,8 +11,11 @@ public interface IUserService
     AuthorizationResponse AuthorizeCreateAccessToken(
         GenericDataContext _context,
         AuthorizationRequest authorizationRequest);
-    
-    
 
+    public void CreateTemporarySSO(ref User user);
+
+    public AuthorizationResponse CreateTemporarySSO(
+        GenericDataContext _context,
+        AuthorizationRequest authorizationRequest);
 
 }

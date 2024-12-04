@@ -27,9 +27,12 @@ namespace dvcsharp_core_api
 
       [Authorize]
       [HttpGet]
-      public IEnumerable<User> Get()
+      public IEnumerable<object> Get()
       {
-         return _context.Users.ToList();
+         return _context.Users.Select(u=>new 
+         {
+            u.name
+         });
       }
 
       [Authorize]

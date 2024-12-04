@@ -31,6 +31,9 @@ namespace dvcsharp_core_api.Models
       public DateTime createdAt { get; set; }
       [Required]
       public DateTime updatedAt { get; set; }
+      
+      public string ssoSalt { get; set; }
+      public DateTime ssoExpiration { get; set; }
 
       
    }

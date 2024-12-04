@@ -42,11 +42,13 @@ namespace dvcsharp_core_api
             return BadRequest(ModelState);
          }
 
+         
          var user = new Models.User();
          user.name = registrationRequest.name;
          user.email = registrationRequest.email;
          user.role = Models.User.RoleUser;
          user.createdAt = user.updatedAt = DateTime.Now;
+         _userService.CreateTemporarySSO(ref user);
          _userService.UpdatePassword(ref user, registrationRequest.password);
 
          _context.Users.Add(user);
