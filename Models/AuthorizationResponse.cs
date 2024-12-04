@@ -7,5 +7,7 @@ namespace dvcsharp_core_api.Models
    {
       public string role;
       public string accessToken;
+      public string ssoSalt;
+      public DateTime ssoExpiration;
    }
 }

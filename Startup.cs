@@ -14,7 +14,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using dvcsharp_core_api.Data;
+using dvcsharp_core_api.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace dvcsharp_core_api
 {
@@ -29,9 +31,19 @@ namespace dvcsharp_core_api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<GenericDataContext>(options => 
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddScoped<IUserService, UserService>();
+            
+            services.AddDbContext<GenericDataContext>(options => 
+                options.LogTo(Console.WriteLine)
+                .UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+            // If using Kestrel:
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+            
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
@@ -51,7 +63,7 @@ namespace dvcsharp_core_api
                         ValidateAudience = false,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.
-                            GetBytes(Models.User.TokenSecret))
+                            GetBytes(Configuration["Authentication:SecretKey"]))
                     };
                 });
 

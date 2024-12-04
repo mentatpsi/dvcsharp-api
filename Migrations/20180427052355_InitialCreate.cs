@@ -19,7 +19,9 @@ namespace dvcsharpcoreapi.Migrations
                     name = table.Column<string>(nullable: true),
                     password = table.Column<string>(nullable: true),
                     role = table.Column<string>(nullable: true),
-                    updatedAt = table.Column<DateTime>(nullable: false)
+                    updatedAt = table.Column<DateTime>(nullable: false),
+                    ssoSalt = table.Column<string>(nullable: true),
+                    ssoExpiration = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
