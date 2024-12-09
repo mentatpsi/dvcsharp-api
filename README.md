@@ -7,13 +7,14 @@
 ### Docker
 
 ```
-docker-compose up
+docker build --no-cache -t my-image .
+
+docker run -it -p 80:5000 my-image
 ```
 
 ### Manual
 
-Install .NET Core 2.x SDK
-[Microsoft .NET Core SDK](https://www.microsoft.com/net/download/macos)
+Install .NET 9 SDK
 
 Install dependencies and migrate database:
 
